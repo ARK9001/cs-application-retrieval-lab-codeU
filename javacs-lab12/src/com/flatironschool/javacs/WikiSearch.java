@@ -6,7 +6,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import redis.clients.jedis.Jedis;
@@ -61,7 +63,28 @@ public class WikiSearch {
 	 */
 	public WikiSearch or(WikiSearch that) {
         // FILL THIS IN!
-		return null;
+		//return null;
+
+		Map<String, Integer> combineSet = new HashMap<String, Integer>();
+        Set<String> keyS = map.keySet();
+
+        for(String val: keyS)
+        {
+        	combineSet.put(val, totalRelevance(getRelevance(val), that.getRelevance(val)));
+        }
+
+        keyS = that.map.keySet();
+
+
+        for(String val: keyS)
+        {
+        	if(!combineSet.containsKey(val))
+        		combineSet.put(val, that.getRelevance(val));
+        }
+
+        return new WikiSearch(combineSet);
+
+
 	}
 	
 	/**
@@ -72,7 +95,20 @@ public class WikiSearch {
 	 */
 	public WikiSearch and(WikiSearch that) {
         // FILL THIS IN!
-		return null;
+		//return null;
+
+		Map<String, Integer> common = new HashMap<String, Integer>();
+        Set<String> keyS = map.keySet();
+
+        for(String val: keyS)
+        {
+        	Boolean bool = that.map.containsKey(val);
+        	if(bool)
+        		common.put(val, totalRelevance(getRelevance(val), that.getRelevance(val)));
+        }
+
+        return new WikiSearch(common);
+
 	}
 	
 	/**
@@ -83,7 +119,20 @@ public class WikiSearch {
 	 */
 	public WikiSearch minus(WikiSearch that) {
         // FILL THIS IN!
-		return null;
+		//return null;
+
+		Map<String, Integer> common = new HashMap<String, Integer>();
+        Set<String> keyS = map.keySet();
+        
+        for(String val: keyS)
+        {
+        	Boolean bool = that.map.containsKey(val);
+        	if(!(bool))
+        		common.put(val, totalRelevance(getRelevance(val), that.getRelevance(val)));
+        }
+
+        return new WikiSearch(common);
+
 	}
 	
 	/**
@@ -105,7 +154,34 @@ public class WikiSearch {
 	 */
 	public List<Entry<String, Integer>> sort() {
         // FILL THIS IN!
-		return null;
+		//return null;
+
+		List<Entry<String, Integer>> li = new ArrayList<Entry<String, Integer>>();
+		
+		for(Entry<String, Integer> en : map.entrySet())
+		{
+			li.add(en);
+		}
+
+		Comparator<Entry<String, Integer>> compare = new Comparator<Entry<String, Integer>>() {
+	            @Override
+	            public int compare(Entry<String, Integer> val1, Entry<String, Integer> val2)
+	            {
+	            	if (val1.getValue() < val2.getValue())
+	            	{
+	                    return -1;
+	                }
+	                if (val1.getValue() > val2.getValue())
+	                {
+	                    return 1;
+	                }
+	                return 0;
+	            }
+	        };
+
+	        Collections.sort(li, compare);
+        return li;
+
 	}
 
 	/**
